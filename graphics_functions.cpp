@@ -1,6 +1,8 @@
 //Dependencies
 #include "graphics_functions.h"
 
+#include <iostream>
+
 void draw_object(sf::RenderWindow* target_window, Object* render_object)
 {
 
@@ -61,45 +63,93 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 		if (!p->light_emitter) continue;		
 
 		//Filter out all other objects that are too far away
-		std::vector<float*> close_objects; // {distance, bigger_than_angle, smaller_than_angle}
+		std::vector<Shadow> close_objects; // {distance, left, right}
 		float light_rad = light_get_range(p);
-
+		
 		for (int q = 0; q < render_object.object_list.size(); q++)
 		{
 			Object* t = render_object.object_list[q];
 			float d = sqrt(distance2(p,t));
+
+			//Convert to angle data and add to close_objects vector			
 			if (i != q && d < light_rad)
 			{
 				//Calculate data and fill close_objects vector
-				float data[3];
-				data[0] = d;
+				Shadow data;				
+				data.dist = d;
 
 				//Angle calculations
 				sf::Vector2f pos_diff = p->pos - t->pos;
 				float mid_angle = atan2(pos_diff.y,pos_diff.x);
 				float radius_angle = atan(t->rad/d);
-				data[1] = mid_angle - radius_angle;
-				data[2] = mid_angle + radius_angle;				
-
+				data.left = (mid_angle - radius_angle);
+				data.right = (mid_angle + radius_angle);
 				close_objects.push_back(data);
 			}
 		}
 
-		for (int q = 0; q < close_objects.size(); q++)
+		//Sort elements after distance
+		for (int i = 1; i < close_objects.size(); i++)
 		{
-			float* data = close_objects[i];
-			//Show objects in range
+			int q = i;
+			int r = i-1;
+			while(close_objects[q].dist < close_objects[r].dist && r >= 0)
+			{
+				//Swap
+				Shadow midl = close_objects[q];
+				close_objects[q] = close_objects[r];
+				close_objects[r] = midl;
+
+				//One step down
+				q = r;
+				r--;
+			}
+		}
+		
+		//Collapse shadows, deal with eclipses, etc.
+		std::vector<Shadow> close_objects_collapsed;
+		close_objects_collapsed.push_back(close_objects[0]);
+		for (int i = 1; i < close_objects.size(); i++)
+		{
+			
+			Shadow s = close_objects[i]; //The shadow we want to add
+			//Four cases, [left eclipsed, right eclipsed, both eclipsed, none eclipsed]
+			
+			for (int q = 0; q < i; q++)
+			{
+				Shadow o = close_objects_collapsed[q]; //The shadow above
+				if (s.left >= o.left && s.left <= o.right) s.left = o.right;
+				if (s.right <= o.right && s.right >= o.left) s.right = o.left;
+
+				if (s.right > s.left) close_objects_collapsed.push_back(s);
+			}
+		}
+				
+		//Debug
+		std::cout << std::endl;
+		for (int i = 0; i < close_objects.size(); i++) std::cout << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right <<"\n" << std::endl;
+		for (int i = 0; i < close_objects_collapsed.size(); i++) std::cout << close_objects_collapsed[i].dist << " | " << close_objects_collapsed[i].left << " , " << close_objects_collapsed[i].right << std::endl;
+		for (int i = 0; i < close_objects_collapsed.size(); i++)
+		{
+			Shadow s = close_objects_collapsed[i];
 			sf::VertexArray lines(sf::LinesStrip, 2);
 			lines[0].position = p->pos;
-			lines[1].position = sf::Vector2f(p->pos.x-cos(data[1])*data[0],p->pos.y-sin(data[1])*data[0]);
+			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.left),s.dist*sin(s.left));
 			target_window->draw(lines);
 
 			lines[0].position = p->pos;
-			lines[1].position = sf::Vector2f(p->pos.x-cos(data[2])*data[0],p->pos.y-sin(data[2])*data[0]);
+			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.right),s.dist*sin(s.right));
 			target_window->draw(lines);
-		}
 
+
+		}
+		
 	}
+}
+
+bool in_shadow(Shadow &s,float angle)
+{
+	return 1;
 }
 
 float light_get_range(Object* render_object)

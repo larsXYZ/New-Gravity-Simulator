@@ -9,8 +9,8 @@
 #include "util_functions.h"
 
 //RenderWindow and viewport
-sf::RenderWindow window(sf::VideoMode(1920, 1080), "Gravity Simulator 1.2", sf::Style::Fullscreen);
-sf::View view1(sf::FloatRect(0 , 0, 1920, 1080));
+sf::RenderWindow window(sf::VideoMode(1000, 700), "Gravity Simulator 1.2");
+sf::View view1(sf::FloatRect(0 , 0, 1000, 700));
 
 //World
 World test_world;
@@ -19,13 +19,18 @@ int main()
 {
 
 	//Test objects
-	Object* new_object = new Object(sf::Vector2f(800,440),sf::Vector2f(0,0),20000);
+	Object* new_object = new Object(sf::Vector2f(500,350),sf::Vector2f(0,0),20000);
 	new_object->light_emitter = true;
 	test_world.add_object(new_object);
-	
-	Object* new_object2 = new Object(sf::Vector2f(1100,440),sf::Vector2f(0,0),100);
+
+	Object* new_object2 = new Object(sf::Vector2f(700,440),sf::Vector2f(0,0),100);
 	test_world.add_object(new_object2);
-	
+
+	Object* new_object3 = new Object(sf::Vector2f(300,440),sf::Vector2f(0,0),5000);
+	test_world.add_object(new_object3);
+
+	//Object* new_object4 = new Object(sf::Vector2f(100,600),sf::Vector2f(0,0),8000);
+	//test_world.add_object(new_object4);
 
 	while (window.isOpen())
     {
@@ -51,10 +56,8 @@ int main()
 	
 		collision_detection(test_world.object_list);
 		draw_light_w_shadow(&window,test_world);
-		draw_light(&window,test_world);
 		draw_world(&window,test_world);
 		//leapfrog_integrator(test_world.object_list);
-		//view1.setCenter(test_object->pos);
 
 		window.setView(view1);
 		window.display();
