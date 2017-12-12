@@ -7,9 +7,9 @@
 
 */
 
+//Dependencies
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-
 #include "object.h"
 #include "world.h"
 
@@ -19,6 +19,7 @@ const float T = 0.2;
 const float PI = 3.14159265359;
 
 //Basic math functions
+float distance2(Object* p1, Object* p2); //Returns the distance^2 between two objects
 sf::Vector2f acceleration(Object* planet, Object* attractor); //Returns acceleration between planet
 
 //Integration functions

@@ -8,9 +8,8 @@
 
 */
 
-#include <SFML/Graphics.hpp>
+//Dependencies
 #include <vector>
-
 #include "object.h"
 
 struct World

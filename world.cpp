@@ -1,3 +1,5 @@
+//Dependencies
+#include <SFML/Graphics.hpp>
 #include "world.h"
 
 World::~World()

@@ -8,6 +8,7 @@
 
 */
 
+//Dependencies
 #include <SFML/Graphics.hpp>
 
 //Object constants
@@ -23,6 +24,7 @@ struct Object
 	sf::Vector2f acc;
 	float rad;
 	float mass;
+	bool light_emitter;
 
 	//Constructors
 	Object();

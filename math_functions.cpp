@@ -1,10 +1,17 @@
+//Dependencies
+#include <math.h>
 #include "math_functions.h"
-#include "math.h"
+
+
+float distance2(Object* p1, Object* p2)
+{
+	return pow((p1->pos.x - p2->pos.x),2) + pow((p1->pos.y - p2->pos.y),2);
+}
 
 sf::Vector2f acceleration(Object* planet, Object* attractor)
 {
 	//Calculate distance
-	float d2 = pow((planet->pos.x - attractor->pos.x),2) + pow((planet->pos.y - attractor->pos.y),2);
+	float d2 = distance2(planet,attractor);
 	float d = sqrt(d2);
 	sf::Vector2f unit_dist = (planet->pos - attractor->pos)/d;
 
