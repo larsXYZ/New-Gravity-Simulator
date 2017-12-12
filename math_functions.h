@@ -16,6 +16,7 @@
 //Constants
 const float G = 0.2;
 const float T = 0.2;
+const float PI = 3.14159265359;
 
 //Basic math functions
 sf::Vector2f acceleration(Object* planet, Object* attractor); //Returns acceleration between planet

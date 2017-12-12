@@ -122,7 +122,8 @@ void collision_detection(std::vector<Object*> &object_list)
 				collided = true;
 				t->mass += p->mass; //Transfer mass
 				t->vel.x = (t->mass*t->vel.x + p->mass*p->vel.x)/(t->mass+p->mass); //Transfer momentum
-				t->vel.y = (t->mass*t->vel.y + p->mass*p->vel.y)/(t->mass+p->mass); 
+				t->vel.y = (t->mass*t->vel.y + p->mass*p->vel.y)/(t->mass+p->mass);
+				t->update_rad();
 				delete p; //Unallocate memory
 				break;
 			}
