@@ -20,7 +20,7 @@
 
 //Shadow struct
 struct Shadow{ float dist; float left; float right; };
-bool in_shadow(Shadow &s,float angle); //Returns true if angle is in shadow
+void collapse_shadows(std::vector<Shadow> &shadows); //Adds shadow to list of shadow, deals with eclipses etc..
 
 //Functions
 void draw_object(sf::RenderWindow* target_window, Object* render_object); //Draws planet on screen

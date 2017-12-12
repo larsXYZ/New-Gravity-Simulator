@@ -9,8 +9,8 @@
 #include "util_functions.h"
 
 //RenderWindow and viewport
-sf::RenderWindow window(sf::VideoMode(1000, 700), "Gravity Simulator 1.2");
-sf::View view1(sf::FloatRect(0 , 0, 1000, 700));
+sf::RenderWindow window(sf::VideoMode(1200, 700), "Gravity Simulator 1.2");
+sf::View view1(sf::FloatRect(0 , 0, 1200, 700));
 
 //World
 World test_world;
@@ -29,8 +29,11 @@ int main()
 	Object* new_object3 = new Object(sf::Vector2f(300,440),sf::Vector2f(0,0),5000);
 	test_world.add_object(new_object3);
 
-	//Object* new_object4 = new Object(sf::Vector2f(100,600),sf::Vector2f(0,0),8000);
-	//test_world.add_object(new_object4);
+	Object* new_object4 = new Object(sf::Vector2f(120,600),sf::Vector2f(0,0),8000);
+	test_world.add_object(new_object4);
+
+	Object* new_object5 = new Object(sf::Vector2f(800,200),sf::Vector2f(0,0),6000);
+	test_world.add_object(new_object5);
 
 	while (window.isOpen())
     {
@@ -49,14 +52,14 @@ int main()
 
 				if (event.mouseButton.button == sf::Mouse::Right)
 				{
-					view1.setCenter(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y);
+					while (true) {};
 				}
 			}
         }
 	
 		collision_detection(test_world.object_list);
-		draw_light_w_shadow(&window,test_world);
 		draw_world(&window,test_world);
+		draw_light_w_shadow(&window,test_world);
 		//leapfrog_integrator(test_world.object_list);
 
 		window.setView(view1);

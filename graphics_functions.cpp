@@ -105,33 +105,20 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 				r--;
 			}
 		}
-		
-		//Collapse shadows, deal with eclipses, etc.
-		std::vector<Shadow> close_objects_collapsed;
-		close_objects_collapsed.push_back(close_objects[0]);
-		for (int i = 1; i < close_objects.size(); i++)
-		{
-			
-			Shadow s = close_objects[i]; //The shadow we want to add
-			//Four cases, [left eclipsed, right eclipsed, both eclipsed, none eclipsed]
-			
-			for (int q = 0; q < i; q++)
-			{
-				Shadow o = close_objects_collapsed[q]; //The shadow above
-				if (s.left >= o.left && s.left <= o.right) s.left = o.right;
-				if (s.right <= o.right && s.right >= o.left) s.right = o.left;
 
-				if (s.right > s.left) close_objects_collapsed.push_back(s);
-			}
-		}
 				
 		//Debug
-		std::cout << std::endl;
-		for (int i = 0; i < close_objects.size(); i++) std::cout << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right <<"\n" << std::endl;
-		for (int i = 0; i < close_objects_collapsed.size(); i++) std::cout << close_objects_collapsed[i].dist << " | " << close_objects_collapsed[i].left << " , " << close_objects_collapsed[i].right << std::endl;
-		for (int i = 0; i < close_objects_collapsed.size(); i++)
+		std::cout << "\n" << std::endl;
+		for (int i = 0; i < close_objects.size(); i++) std::cout << i << " : " << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right << std::endl;
+		std::cout <<" Collapsed: "  <<std::endl;
+
+		//Collapse shadows, deal with eclipses, etc.
+		collapse_shadows(close_objects);
+	
+		for (int i = 0; i < close_objects.size(); i++) std::cout << i << " : " << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right << std::endl;
+		for (int i = 0; i < close_objects.size(); i++)
 		{
-			Shadow s = close_objects_collapsed[i];
+			Shadow s = close_objects[i];
 			sf::VertexArray lines(sf::LinesStrip, 2);
 			lines[0].position = p->pos;
 			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.left),s.dist*sin(s.left));
@@ -141,15 +128,56 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.right),s.dist*sin(s.right));
 			target_window->draw(lines);
 
+			lines[0].position = p->pos-sf::Vector2f(s.dist*cos(s.left),s.dist*sin(s.left));
+			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.right),s.dist*sin(s.right));
+			target_window->draw(lines);
+
 
 		}
 		
 	}
 }
 
-bool in_shadow(Shadow &s,float angle)
+void collapse_shadows(std::vector<Shadow> &shadows)
 {
-	return 1;
+
+	//Five cases, [left eclipsed, right eclipsed, both eclipsed, none eclipsed, bigger than objects above]
+	std::vector<Shadow> shadows_collapsed;
+	shadows_collapsed.push_back(shadows[0]);
+	
+	for (int i = 1; i < shadows.size(); i++)
+	{	
+		Shadow s = shadows[i];
+		bool addme =  true;		
+
+		for (int q = 0; q < shadows_collapsed.size(); q++)
+		{
+			Shadow o = shadows_collapsed[q]; //The shadow above
+
+			if (s.left < o.left && s.right > o.right)
+			{
+			
+				//Splits shadow
+				Shadow ls = s;
+				Shadow rs = s;
+				ls.right = o.left;
+				rs.left = o.right;
+				std::cout << "SPLIT" << s.dist << " " << s.left << " , " << s.right << std::endl;
+				//Adds subshadows
+				shadows.insert(shadows.begin()+i+1,ls);
+				shadows.insert(shadows.begin()+i+1,rs);
+				addme = false;
+				break;
+			
+			}
+
+			if (s.left >= o.left && s.left <= o.right) s.left = o.right; 	//Left eclipsed
+			if (s.right <= o.right && s.right >= o.left) s.right = o.left; 	//Right eclipsed
+		}
+		if (s.right > s.left && addme) shadows_collapsed.push_back(s); 	//Not both eclipsed
+	}
+
+	shadows = shadows_collapsed;
 }
 
 float light_get_range(Object* render_object)
