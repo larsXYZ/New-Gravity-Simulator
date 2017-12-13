@@ -15,7 +15,7 @@
 
 //Constants
 const float G = 0.2;
-const float T = 0.2;
+const float T = 0.05;
 const float PI = 3.14159265359;
 
 //Basic math functions

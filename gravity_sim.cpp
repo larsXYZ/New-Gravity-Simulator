@@ -19,21 +19,23 @@ int main()
 {
 
 	//Test objects
-	Object* new_object = new Object(sf::Vector2f(500,350),sf::Vector2f(0,0),20000);
+	Object* new_object = new Object(sf::Vector2f(500,350),sf::Vector2f(0,-0.1),200);
 	new_object->light_emitter = true;
 	test_world.add_object(new_object);
 
-	Object* new_object2 = new Object(sf::Vector2f(700,440),sf::Vector2f(0,0),100);
+	Object* new_object2 = new Object(sf::Vector2f(600,350),sf::Vector2f(0,0.5),20);
 	test_world.add_object(new_object2);
+	
 
-	Object* new_object3 = new Object(sf::Vector2f(300,440),sf::Vector2f(0,0),5000);
+	Object* new_object3 = new Object(sf::Vector2f(300,440),sf::Vector2f(0,0.2),1);
 	test_world.add_object(new_object3);
 
-	Object* new_object4 = new Object(sf::Vector2f(120,600),sf::Vector2f(0,0),8000);
+	Object* new_object4 = new Object(sf::Vector2f(120,600),sf::Vector2f(0,-0.2),1);
 	test_world.add_object(new_object4);
 
-	Object* new_object5 = new Object(sf::Vector2f(800,200),sf::Vector2f(0,0),6000);
+	Object* new_object5 = new Object(sf::Vector2f(800,250),sf::Vector2f(0,-0.2),1);
 	test_world.add_object(new_object5);
+
 
 	while (window.isOpen())
     {
@@ -42,25 +44,12 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-			
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				if (event.mouseButton.button == sf::Mouse::Left)
-				{
-					new_object2->pos = sf::Vector2f(sf::Mouse::getPosition(window));
-				}
-
-				if (event.mouseButton.button == sf::Mouse::Right)
-				{
-					while (true) {};
-				}
-			}
         }
 	
 		collision_detection(test_world.object_list);
 		draw_world(&window,test_world);
 		draw_light_w_shadow(&window,test_world);
-		//leapfrog_integrator(test_world.object_list);
+		leapfrog_integrator(test_world.object_list);
 
 		window.setView(view1);
 		window.display();

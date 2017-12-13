@@ -74,17 +74,56 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 			//Convert to angle data and add to close_objects vector			
 			if (i != q && d < light_rad)
 			{
-				//Calculate data and fill close_objects vector
-				Shadow data;				
-				data.dist = d;
+
 
 				//Angle calculations
 				sf::Vector2f pos_diff = p->pos - t->pos;
 				float mid_angle = atan2(pos_diff.y,pos_diff.x);
 				float radius_angle = atan(t->rad/d);
-				data.left = (mid_angle - radius_angle);
-				data.right = (mid_angle + radius_angle);
-				close_objects.push_back(data);
+				float left = (mid_angle - radius_angle);
+				float right = (mid_angle + radius_angle);
+
+				//Fix looping issues, split shadow into two.
+				
+				if (left < -PI)
+				{
+					Shadow left_data;
+					Shadow right_data;
+					left_data.dist = d;
+					right_data.dist = d;
+
+					left_data.left = left + 2*PI;
+					left_data.right = PI;
+					right_data.left = -PI;
+					right_data.right = right;
+					close_objects.push_back(left_data);
+					close_objects.push_back(right_data);
+				}
+				else if (right > PI)
+				{
+					Shadow left_data;
+					Shadow right_data;
+					left_data.dist = d;
+					right_data.dist = d;
+
+					left_data.left = left;
+					left_data.right = PI;
+					right_data.left = -PI;
+					right_data.right = right - 2*PI;
+					close_objects.push_back(left_data);
+					close_objects.push_back(right_data);
+				}
+				else
+				{
+					//Calculate data and fill close_objects vector
+					Shadow data;				
+					data.dist = d;
+					data.left = left;
+					data.right = right;
+					close_objects.push_back(data);
+				}
+				
+				
 			}
 		}
 
@@ -106,16 +145,19 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 			}
 		}
 
-				
+		//Collapse shadows, deal with eclipses, etc.
+		collapse_shadows(close_objects);
+
+		/*	
 		//Debug
 		std::cout << "\n" << std::endl;
 		for (int i = 0; i < close_objects.size(); i++) std::cout << i << " : " << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right << std::endl;
 		std::cout <<" Collapsed: "  <<std::endl;
 
-		//Collapse shadows, deal with eclipses, etc.
-		collapse_shadows(close_objects);
+		
 	
 		for (int i = 0; i < close_objects.size(); i++) std::cout << i << " : " << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right << std::endl;
+		*/		
 		for (int i = 0; i < close_objects.size(); i++)
 		{
 			Shadow s = close_objects[i];
@@ -131,9 +173,8 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 			lines[0].position = p->pos-sf::Vector2f(s.dist*cos(s.left),s.dist*sin(s.left));
 			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.right),s.dist*sin(s.right));
 			target_window->draw(lines);
-
-
 		}
+		
 		
 	}
 }
@@ -162,7 +203,6 @@ void collapse_shadows(std::vector<Shadow> &shadows)
 				Shadow rs = s;
 				ls.right = o.left;
 				rs.left = o.right;
-				std::cout << "SPLIT" << s.dist << " " << s.left << " , " << s.right << std::endl;
 				//Adds subshadows
 				shadows.insert(shadows.begin()+i+1,ls);
 				shadows.insert(shadows.begin()+i+1,rs);
