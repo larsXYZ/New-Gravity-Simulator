@@ -12,15 +12,12 @@
 #include <SFML/Window.hpp>
 #include "object.h"
 #include "world.h"
-
-//Constants
-const float G = 0.2;
-const float T = 0.05;
-const float PI = 3.14159265359;
+#include "constants.h"
 
 //Basic math functions
 float distance2(Object* p1, Object* p2); //Returns the distance^2 between two objects
 sf::Vector2f acceleration(Object* planet, Object* attractor); //Returns acceleration between planet
+sf::Vector2f p2v(float r, float angle); //Returns vector
 
 //Integration functions
 void euler_integrator(std::vector<Object*> &object_list);

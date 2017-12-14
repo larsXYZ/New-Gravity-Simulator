@@ -10,10 +10,8 @@
 
 //Dependencies
 #include <SFML/Graphics.hpp>
-
-//Object constants
-#define OBJECT_DENSITY 0.3
-#define OBJECT_START_MASS 10
+#include "util_functions.h"
+#include "constants.h"
 
 struct Object
 {
@@ -25,6 +23,10 @@ struct Object
 	float rad;
 	float mass;
 	bool light_emitter;
+
+	//Graphic Variables
+	sf::Color color;
+	
 
 	//Constructors
 	Object();

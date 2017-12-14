@@ -19,6 +19,11 @@ sf::Vector2f acceleration(Object* planet, Object* attractor)
 	return - G * attractor->mass * unit_dist / d2;
 }
 
+sf::Vector2f p2v(float r, float angle)
+{
+	return sf::Vector2f(r*cos(angle),r*sin(angle));
+}
+
 void euler_integrator(std::vector<Object*> &object_list)
 {
 	//Calculate acceleration

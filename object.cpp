@@ -10,6 +10,7 @@ Object::Object()
 	mass = OBJECT_START_MASS;
 	light_emitter = false;
 	update_rad();
+	color = random_color(50,190);
 
 }
 
@@ -22,10 +23,11 @@ Object::Object(sf::Vector2f position, sf::Vector2f velocity, float m)
 	mass = m;
 	light_emitter = false;
 	update_rad();
+	color = random_color(50,190);
 	
 }
 
 void Object::update_rad()
 {
-	rad = cbrt(mass)/OBJECT_DENSITY;
+	rad = OBJECT_RADIUS_FACTOR*cbrt(mass)/OBJECT_DENSITY;
 }

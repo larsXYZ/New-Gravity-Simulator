@@ -22,3 +22,8 @@ float random_float(float lower, float higher)
 	return dist(mt);
 
 }
+
+sf::Color random_color(int min, int max)
+{
+	return sf::Color(random_int(min,max),random_int(min,max),random_int(min,max));
+}
