@@ -10,7 +10,7 @@ void draw_object(sf::RenderWindow* target_window, Object* render_object)
 	sf::CircleShape circle;
 	circle.setRadius(render_object->rad);
 	circle.setPosition(render_object->pos);
-	circle.setFillColor(sf::Color(120,120,120,255));
+	circle.setFillColor(sf::Color(120,170,120,255));
 	circle.setOrigin(render_object->rad,render_object->rad);
 	circle.setPointCount(30);
 
@@ -28,29 +28,25 @@ void draw_world(sf::RenderWindow* target_window, World& render_object)
 
 }
 
-void draw_light(sf::RenderWindow* target_window, World& render_object)
+void draw_light_single_object(sf::RenderWindow* target_window, Object *p)
 {
 	//Iterates through object list and draws their light on screen
-	for (int i = 0; i < render_object.object_list.size(); i++)
+	if (!p->light_emitter) return;
+	
+	//Calculating angle difference
+	float angle_delta = 2*PI/(LIGHT_VERTEX_COUNT-2);
+	float angle = 0;
+
+	//Create and populate light_vertex array
+	sf::Vertex light_array[LIGHT_VERTEX_COUNT];
+	light_array[0] = sf::Vertex(p->pos, sf::Color::White);
+	for (int i = 1; i < LIGHT_VERTEX_COUNT; i++)
 	{
-		Object* p = render_object.object_list[i];
-		if (!p->light_emitter) continue;
-		
-		//Calculating angle difference
-		float angle_delta = 2*PI/(LIGHT_VERTEX_COUNT-2);
-		float angle = 0;
-
-		//Create and populate light_vertex array
-		sf::Vertex light_array[LIGHT_VERTEX_COUNT];
-		light_array[0] = sf::Vertex(p->pos, sf::Color::White);
-		for (int i = 1; i < LIGHT_VERTEX_COUNT; i++)
-		{
-			light_array[i] = sf::Vertex(p->pos + sf::Vector2f(light_get_range(p)*cos(angle),light_get_range(p)*sin(angle)), sf::Color(0,0,0,0));
-			angle += angle_delta;
-		}
-
-		target_window->draw(light_array, LIGHT_VERTEX_COUNT, sf::TrianglesFan);
+		light_array[i] = sf::Vertex(p->pos + sf::Vector2f(light_get_range(p)*cos(angle),light_get_range(p)*sin(angle)), sf::Color(0,0,0,0));
+		angle += angle_delta;
 	}
+
+	target_window->draw(light_array, LIGHT_VERTEX_COUNT, sf::TrianglesFan);
 }
 
 void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
@@ -127,54 +123,66 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 			}
 		}
 
-		//Sort elements after distance
-		for (int i = 1; i < close_objects.size(); i++)
-		{
-			int q = i;
-			int r = i-1;
-			while(close_objects[q].dist < close_objects[r].dist && r >= 0)
-			{
-				//Swap
-				Shadow midl = close_objects[q];
-				close_objects[q] = close_objects[r];
-				close_objects[r] = midl;
+		//If there is no nearby elements we use the normal method
+		if (close_objects.size() == 0) draw_light_single_object(target_window, p);
 
-				//One step down
-				q = r;
-				r--;
-			}
-		}
+		//Sort elements after distance
+		sort_shadows_dist(close_objects);
 
 		//Collapse shadows, deal with eclipses, etc.
 		collapse_shadows(close_objects);
 
-		/*	
-		//Debug
-		std::cout << "\n" << std::endl;
-		for (int i = 0; i < close_objects.size(); i++) std::cout << i << " : " << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right << std::endl;
-		std::cout <<" Collapsed: "  <<std::endl;
-
-		
+		//Sort elements after angle
+		sort_shadows_angle(close_objects);
 	
-		for (int i = 0; i < close_objects.size(); i++) std::cout << i << " : " << close_objects[i].dist << " | " << close_objects[i].left << " , " << close_objects[i].right << std::endl;
-		*/		
-		for (int i = 0; i < close_objects.size(); i++)
+		//Calculating angle difference
+		float angle_delta = 2*PI/(LIGHT_VERTEX_COUNT-2);
+		float curr_angle = -PI;
+		float curr_dist;
+		float max_range = light_get_range(p);
+		int shadow_index = 0;
+
+		//Create and populate light_vertex array
+		sf::VertexArray light_array(sf::TrianglesFan);
+		light_array.append(sf::Vertex(p->pos, sf::Color(255,255,255,160)));
+		light_array.append(sf::Vertex(p->pos+sf::Vector2f(max_range,0), sf::Color(255,255,255,0)));
+
+		while (curr_angle < PI)
 		{
-			Shadow s = close_objects[i];
-			sf::VertexArray lines(sf::LinesStrip, 2);
-			lines[0].position = p->pos;
-			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.left),s.dist*sin(s.left));
-			target_window->draw(lines);
-
-			lines[0].position = p->pos;
-			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.right),s.dist*sin(s.right));
-			target_window->draw(lines);
-
-			lines[0].position = p->pos-sf::Vector2f(s.dist*cos(s.left),s.dist*sin(s.left));
-			lines[1].position = p->pos-sf::Vector2f(s.dist*cos(s.right),s.dist*sin(s.right));
-			target_window->draw(lines);
-		}
+	
+			Shadow next_shadow = close_objects[shadow_index];		
 		
+			if (curr_angle + angle_delta >= next_shadow.left && shadow_index < close_objects.size())
+			{
+				
+				curr_angle = next_shadow.left;
+				curr_dist = max_range;
+				light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,0)));
+				
+				curr_dist = next_shadow.dist;
+				light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,160-160*(next_shadow.dist/light_get_range(p)))));
+
+				curr_angle = next_shadow.right;
+				light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,160-160*(next_shadow.dist/light_get_range(p)))));				
+				shadow_index++;
+
+				if (close_objects[shadow_index].left != curr_angle)
+				{
+					curr_dist = max_range;
+					light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,0)));				
+				}
+			}
+			else
+			{
+				curr_dist = max_range;
+				light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,0)));
+				curr_angle += angle_delta;
+			}
+		}
+		if (curr_angle != PI) light_array.append(sf::Vertex(p->pos+sf::Vector2f(light_get_range(p),0), sf::Color(255,255,255,0)));
+
+		//Draw vertexArray
+		target_window->draw(light_array);
 		
 	}
 }
@@ -223,4 +231,43 @@ void collapse_shadows(std::vector<Shadow> &shadows)
 float light_get_range(Object* render_object)
 {
 	return LIGHT_STRENGTH_MULTIPLIER*render_object->rad;
+}
+
+void sort_shadows_dist(std::vector<Shadow> &shadows)
+{
+	for (int i = 1; i < shadows.size(); i++)
+	{
+		int q = i;
+		int r = i-1;
+		while(shadows[q].dist < shadows[r].dist && r >= 0)
+		{
+			//Swap
+			Shadow midl = shadows[q];
+			shadows[q] = shadows[r];
+			shadows[r] = midl;
+
+			//One step down
+			q = r;
+			r--;
+		}
+	}
+}
+void sort_shadows_angle(std::vector<Shadow> &shadows)
+{
+	for (int i = 1; i < shadows.size(); i++)
+	{
+		int q = i;
+		int r = i-1;
+		while(shadows[q].left < shadows[r].left && r >= 0)
+		{
+			//Swap
+			Shadow midl = shadows[q];
+			shadows[q] = shadows[r];
+			shadows[r] = midl;
+
+			//One step down
+			q = r;
+			r--;
+		}
+	}
 }
