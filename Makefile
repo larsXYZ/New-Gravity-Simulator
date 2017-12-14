@@ -10,7 +10,7 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	$(CC) $^ $(LDFLAGS) -o $@
 
-%.o: %.cpp %.h
+%.o: %.cpp constants.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: all clean destroy rebuild

@@ -27,6 +27,7 @@ float light_get_range(Object* render_object); //Returns radius of light
 void draw_object(sf::RenderWindow* target_window, Object* render_object); //Draws planet on screen
 void draw_world(sf::RenderWindow* target_window, World& render_object); //Draws world on screen
 void draw_light_single_object(sf::RenderWindow* target_window, Object *p); //Draws lights from single light source, without shadows
+void draw_shine(sf::RenderWindow* target_window, World& render_object); //This shine penetrates objects, from light emitters
 void draw_light_single_object_w_shadow(sf::RenderWindow* target_window, Object *p, std::vector<Object*> object_list); //Draws lights from single light source, without shadows
 void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object); //Draws lights with shadows, worst case O(n^3) :(
 void draw_light_w_shadow_simple(sf::RenderWindow* target_window, World& render_object); //Simpler version of draw_light_w_shadow()

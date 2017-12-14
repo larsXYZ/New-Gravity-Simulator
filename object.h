@@ -27,7 +27,6 @@ struct Object
 	//Graphic Variables
 	sf::Color color;
 	
-
 	//Constructors
 	Object();
 	Object(sf::Vector2f position, sf::Vector2f velocity, float m);

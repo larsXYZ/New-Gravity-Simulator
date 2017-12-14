@@ -12,7 +12,7 @@ void draw_object(sf::RenderWindow* target_window, Object* render_object)
 	circle.setPosition(render_object->pos);
 	circle.setFillColor(render_object->color);
 	circle.setOrigin(render_object->rad,render_object->rad);
-	circle.setPointCount(30);
+	circle.setPointCount(PLANET_VERTEX_COUNT);
 
 	//Draws on window
 	target_window->draw(circle);
@@ -25,7 +25,6 @@ void draw_world(sf::RenderWindow* target_window, World& render_object)
 	{
 		draw_object(target_window,render_object.object_list[i]);
 	}
-
 }
 
 void draw_light_single_object(sf::RenderWindow* target_window, Object *p)
@@ -53,6 +52,35 @@ void draw_light_w_shadow(sf::RenderWindow* target_window, World& render_object)
 {
 	//Iterates through object list and draws their light on screen
 	for (int i = 0; i < render_object.object_list.size(); i++) draw_light_single_object_w_shadow(target_window, render_object.object_list[i], render_object.object_list);
+}
+
+void draw_shine(sf::RenderWindow* target_window, World& render_object)
+{
+	for (int i = 0; i < render_object.object_list.size(); i++)
+	{
+		Object* p = render_object.object_list[i];
+
+		//Iterates through object list and draws their light on screen
+		if (!p->light_emitter) return;
+	
+		//Calculating angle difference
+		float angle_delta = 2*PI/(LIGHT_VERTEX_COUNT-2);
+		float angle = 0;
+
+		//Create and populate light_vertex array
+		sf::Vertex light_array[LIGHT_VERTEX_COUNT];
+		sf::Color col = p->color;
+		col.a = LIGHT_SHINE_ALPHA;
+		light_array[0] = sf::Vertex(p->pos, col);
+		float range = LIGHT_SHINE_RANGE*light_get_range(p);
+		for (int i = 1; i < LIGHT_VERTEX_COUNT; i++)
+		{
+			light_array[i] = sf::Vertex(p->pos + p2v(range,angle), sf::Color(0,0,0,0));
+			angle += angle_delta;
+		}
+
+		target_window->draw(light_array, LIGHT_VERTEX_COUNT, sf::TrianglesFan);
+	}
 }
 
 void draw_light_single_object_w_shadow(sf::RenderWindow* target_window, Object *p, std::vector<Object*> object_list)
@@ -87,8 +115,11 @@ void draw_light_single_object_w_shadow(sf::RenderWindow* target_window, Object *
 
 	//Create and populate light_vertex array
 	sf::VertexArray light_array(sf::TrianglesFan);
-	light_array.append(sf::Vertex(p->pos, sf::Color(255,255,255,LIGHT_START_ALPHA))); //Middle point
-	light_array.append(sf::Vertex(p->pos+sf::Vector2f(max_range,0), sf::Color(255,255,255,0))); //First point on outer circle
+	sf::Color col = p->color;
+	col.a = LIGHT_START_ALPHA;
+	light_array.append(sf::Vertex(p->pos, col)); //Middle point
+	col.a = 0;
+	light_array.append(sf::Vertex(p->pos+sf::Vector2f(max_range,0), col)); //First point on outer circle
 
 	while (curr_angle < PI)
 	{
@@ -100,29 +131,38 @@ void draw_light_single_object_w_shadow(sf::RenderWindow* target_window, Object *
 			
 			curr_angle = next_shadow.left;
 			curr_dist = max_range;
-			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,0)));
+			col.a = 0;
+			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), col));
 			
+			col.a = LIGHT_START_ALPHA*(1-(next_shadow.dist/light_get_range(p)));
 			curr_dist = next_shadow.dist;
-			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,LIGHT_START_ALPHA*(1-(next_shadow.dist/light_get_range(p))))));
+			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), col));
 
 			curr_angle = next_shadow.right;
-			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,LIGHT_START_ALPHA*(1-(next_shadow.dist/light_get_range(p))))));				
+			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), col));				
 			shadow_index++;
 
 			if (close_objects[shadow_index].left != curr_angle)
 			{
 				curr_dist = max_range;
-				light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,0)));				
+				col.a = 0;
+				light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), col));				
 			}
 		}
 		else
 		{
 			curr_dist = max_range;
-			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), sf::Color(255,255,255,0)));
+			col.a = 0;
+			light_array.append(sf::Vertex(p->pos-sf::Vector2f(curr_dist*cos(curr_angle),curr_dist*sin(curr_angle)), col));
 			curr_angle += angle_delta;
 		}
 	}
-	if (curr_angle != PI) light_array.append(sf::Vertex(p->pos+sf::Vector2f(light_get_range(p),0), sf::Color(255,255,255,0)));
+	if (curr_angle != PI)
+	{
+		col.a = 0;
+		light_array.append(sf::Vertex(p->pos+sf::Vector2f(light_get_range(p),0), col));
+	}
+
 	
 	//Draw vertexArray
 	target_window->draw(light_array);
