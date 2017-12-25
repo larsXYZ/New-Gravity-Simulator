@@ -7,34 +7,30 @@
 #include "graphics_functions.h"
 #include "math_functions.h"
 #include "util_functions.h"
+#include "constants.h"
+#include "controls.h"
 
 //RenderWindow and viewport
-sf::RenderWindow window(sf::VideoMode(1920, 1080), "Gravity Simulator 1.2",sf::Style::Fullscreen);
-sf::View view1(sf::FloatRect(0 , 0, 1920, 1080));
+sf::RenderWindow window(sf::VideoMode(SCREEN_RESOLUTION_HORIZONTAL, SCREEN_RESOLUTION_VERTICAL), "Gravity Simulator 1.2");
+sf::View camera(sf::FloatRect(0 , 0, SCREEN_RESOLUTION_HORIZONTAL, SCREEN_RESOLUTION_VERTICAL));
 
 //World
 World test_world;
 
 int main()
 {
-	view1.zoom(1);
 
-	//Test objects
-	Object* new_object = new Object(sf::Vector2f(5000,5000),sf::Vector2f(0,0),200000);
+	camera.zoom(0.5);
+
+	//Disables multiple keypresses
+	window.setKeyRepeatEnabled(false);
+
+	//--------------Test objects-------------------
+	Object* new_object = new Object(sf::Vector2f(500,200),sf::Vector2f(0.5,0.5),200);
 	new_object->light_emitter = true;
 	new_object->color = sf::Color(255,220,200);
 	test_world.add_object(new_object);
-
-	Object* new_object2 = new Object(sf::Vector2f(5000,12000),sf::Vector2f(25, 0),200);
-	new_object2->color = sf::Color(70,70,70);
-	test_world.add_object(new_object2);
-	
-	Object* new_object3 = new Object(sf::Vector2f(4750,11500),sf::Vector2f(28, 0),1);
-	new_object3->color = sf::Color(40,40,40);
-	test_world.add_object(new_object3);
-
-	view1.setCenter(new_object2->pos + sf::Vector2f(2000,-300));
-
+	//---------------------------------------------
 
 
 
@@ -43,11 +39,12 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
-                window.close();
+			control_event_handler(event,window,camera);
         }
 
-
+		//Camera click -> drag
+		control_drag_camera(event,window,camera);
+		
 		collision_detection(test_world.object_list);
 		
 		draw_world(&window,test_world);
@@ -56,7 +53,7 @@ int main()
 		
 		leapfrog_integrator(test_world.object_list);
 
-		window.setView(view1);
+		window.setView(camera);
 		window.display();
 		window.clear();
 

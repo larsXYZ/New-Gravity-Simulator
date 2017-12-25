@@ -8,6 +8,8 @@
 */
 
 //-----Graphics-----
+#define SCREEN_RESOLUTION_HORIZONTAL 1600 //RenderWindow horizontal resolution
+#define SCREEN_RESOLUTION_VERTICAL 900 //RenderWindow vertical resolution
 #define PLANET_VERTEX_COUNT 60 //How many vertexes the planets are made from
 #define LIGHT_VERTEX_COUNT 50 //How many vertexes the light is made from, might vary depending on shadows
 #define LIGHT_STRENGTH_MULTIPLIER 30 //Distance multiplier
