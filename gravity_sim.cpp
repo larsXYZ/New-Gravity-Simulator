@@ -20,18 +20,18 @@ World test_world;
 int main()
 {
 
-	camera.zoom(0.5);
-
-	//Disables multiple keypresses
-	window.setKeyRepeatEnabled(false);
+	camera.zoom(2);
+	window.setFramerateLimit(60);
+	window.setVerticalSyncEnabled(true);
 
 	//--------------Test objects-------------------
-	Object* new_object = new Object(sf::Vector2f(500,200),sf::Vector2f(0.5,0.5),200);
+	Object* new_object = new Object(sf::Vector2f(500,200),sf::Vector2f(0.5,0.5),20000);
 	new_object->light_emitter = true;
 	new_object->color = sf::Color(255,220,200);
 	test_world.add_object(new_object);
 	//---------------------------------------------
 
+	
 
 
 	while (window.isOpen())
@@ -39,17 +39,15 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-			control_event_handler(event,window,camera);
+			control_event_handler(event,window,camera,test_world);
         }
 
-		//Camera click -> drag
-		control_drag_camera(event,window,camera);
-		
 		collision_detection(test_world.object_list);
 		
 		draw_world(&window,test_world);
 		draw_light_w_shadow(&window,test_world);
 		draw_shine(&window,test_world);
+		control_draw_tool_helpers(window);
 		
 		leapfrog_integrator(test_world.object_list);
 

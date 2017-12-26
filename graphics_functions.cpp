@@ -361,5 +361,12 @@ void draw_light_w_shadow_simple(sf::RenderWindow* target_window, World& render_o
 
 		}
 	}
+}
 
+void draw_line(sf::Vector2f p1, sf::Vector2f p2, sf::RenderWindow& target_window)
+{
+	sf::VertexArray lines(sf::LinesStrip, 2);
+	lines[0].position = p1;
+	lines[1].position = p2;
+	target_window.draw(lines);
 }

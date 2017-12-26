@@ -19,12 +19,15 @@
 
 //-----Math-----
 #define G 15.f
-#define T 0.001f/*0.0002f*/
+#define T 0.1f
 #define PI 3.14159265359f
 
 //----Objects-----
 #define OBJECT_DENSITY 0.3f
 #define OBJECT_START_MASS 10
 #define OBJECT_RADIUS_FACTOR 5
+
+//----Controls----
+#define CONTROL_ADD_PLANET_SPEED_MULTIPLIER 0.02
 
 #endif
