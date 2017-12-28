@@ -17,6 +17,7 @@
 //Basic math functions
 float distance2(Object* p1, Object* p2); //Returns the distance^2 between two objects
 sf::Vector2f acceleration(Object* planet, Object* attractor); //Returns acceleration between planet
+float euc_norm(sf::Vector2f v); //Returns euclidean norm of vector
 sf::Vector2f p2v(float r, float angle); //Returns vector
 
 //Integration functions

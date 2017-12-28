@@ -24,6 +24,11 @@ sf::Vector2f p2v(float r, float angle)
 	return sf::Vector2f(r*cos(angle),r*sin(angle));
 }
 
+float euc_norm(sf::Vector2f v)
+{
+	return sqrt(v.x*v.x+v.y*v.y);
+}
+
 void euler_integrator(std::vector<Object*> &object_list)
 {
 	//Calculate acceleration
