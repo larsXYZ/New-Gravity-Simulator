@@ -38,7 +38,9 @@ void draw_light_single_object(sf::RenderWindow* target_window, Object *p)
 
 	//Create and populate light_vertex array
 	sf::Vertex light_array[LIGHT_VERTEX_COUNT];
-	light_array[0] = sf::Vertex(p->pos, sf::Color(255,255,255,LIGHT_START_ALPHA));
+	sf::Color col = p->color;
+	col.a = LIGHT_START_ALPHA;
+	light_array[0] = sf::Vertex(p->pos, col);
 	for (int i = 1; i < LIGHT_VERTEX_COUNT; i++)
 	{
 		light_array[i] = sf::Vertex(p->pos + sf::Vector2f(light_get_range(p)*cos(angle),light_get_range(p)*sin(angle)), sf::Color(0,0,0,0));

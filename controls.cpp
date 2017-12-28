@@ -8,7 +8,7 @@ static sf::Vector2f mouse_drag_start_location(0,0);
 static sf::Vector2f view_center_start_location(0,0);
 
 //Tool mode
-static std::string tool_array[] = {"ADD PLANET", "ADD SYSTEM"};
+static std::string tool_array[] = {"ADD OBJECT", "ADD SYSTEM"};
 static int current_tool = 1;
 static bool tool_toggle = false;
 static sf::Vector2f tool_vector2f_0(0,0);
@@ -51,6 +51,7 @@ void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View 
 				control_use_tool(event,window,camera,world);
 			}
 
+			break;
 		}
 
 
@@ -63,6 +64,15 @@ void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View 
 				return;
 			}
 
+			if (event.key.code == sf::Keyboard::A) //Iterate through tools
+			{
+				control_reset_working_variables();
+				if (current_tool < 2) current_tool++;
+				if (current_tool >= 2) current_tool = 0;
+				std::cout << "Current tool: "  << current_tool << " ," << tool_array[current_tool] << std::endl;
+			}
+
+			break;
 		}
 
 	}	
@@ -95,9 +105,14 @@ void control_drag_camera(sf::Event &event, sf::RenderWindow &window, sf::View &c
 void control_use_tool(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world)
 {
 
-	if (tool_array[current_tool] == "ADD PLANET") //Adds planet
+	if (current_tool == 0) //Adds planet
 	{
 		control_add_object(event, window, camera, world);
+	}
+
+	if (current_tool == 1) //Adds system
+	{
+		control_add_system(event, window, camera, world);
 	}
 
 }
@@ -138,21 +153,24 @@ void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 	{
 		tool_vector2f_0 = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 		tool_toggle = true;
+		std::cout << "FIRST CLICK" << std::endl;
 		return;
 	}
 
 	//Creates system on second press
 	if (tool_toggle)
 	{
-		
+		std::cout << "SECOND CLICK" << std::endl;
 		tool_vector2f_1 = window.mapPixelToCoords(sf::Mouse::getPosition(window)) - tool_vector2f_0;
 		float rad_max = euc_norm(tool_vector2f_1);
 		
-		float delta_angle = 2*PI / 100;
+		float delta_angle = 2*PI / 200;
+		int i = 0;
 
-		for (int angle = 0; angle < 2*PI; angle += delta_angle)
+		for (float angle = 0; angle < 2*PI; angle += delta_angle)
 		{
-			Object* new_object = new Object(tool_vector2f_0,sf::Vector2f(0,0),1);
+			std::cout << "CREATING OBJECT " << ++i << std::endl;
+			Object* new_object = new Object(tool_vector2f_0,sf::Vector2f(0,0),0.1);
 		
 			float dist = random_float(0,rad_max);
 			new_object->pos = new_object->pos + p2v(dist,angle); 
@@ -170,7 +188,7 @@ void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 void control_draw_tool_helpers(sf::RenderWindow &window)
 {
 
-	if (tool_array[current_tool] == "ADD PLANET" && tool_toggle) //Draws add planet line
+	if (current_tool == 0 && tool_toggle) //Draws add planet line
 	{
 		draw_line(tool_vector2f_0,window.mapPixelToCoords(sf::Mouse::getPosition(window)),window);
 	}

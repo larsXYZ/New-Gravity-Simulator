@@ -25,10 +25,10 @@ int main()
 	window.setVerticalSyncEnabled(true);
 
 	//--------------Test objects-------------------
-	Object* new_object = new Object(sf::Vector2f(500,200),sf::Vector2f(0.5,0.5),20000);
+	/*Object* new_object = new Object(sf::Vector2f(500,200),sf::Vector2f(0.5,0.5),20000);
 	new_object->light_emitter = true;
 	new_object->color = sf::Color(255,220,200);
-	test_world.add_object(new_object);
+	test_world.add_object(new_object);*/
 	//---------------------------------------------
 
 	

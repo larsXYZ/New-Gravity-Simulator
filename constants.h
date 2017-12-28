@@ -19,7 +19,7 @@
 
 //-----Math-----
 #define G 15.f
-#define T 0.1f
+#define T 5.0f
 #define PI 3.14159265359f
 
 //----Objects-----
