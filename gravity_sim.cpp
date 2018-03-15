@@ -1,6 +1,7 @@
 //Dependencies
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <TGUI/TGUI.hpp>
 #include <iostream>
 #include "object.h"
 #include "world.h"
@@ -31,7 +32,7 @@ int main()
 	test_world.add_object(new_object);*/
 	//---------------------------------------------
 
-	
+
 
 
 	while (window.isOpen())
@@ -43,12 +44,12 @@ int main()
         }
 
 		collision_detection(test_world.object_list);
-		
+
 		draw_world(&window,test_world);
 		draw_light_w_shadow(&window,test_world);
 		draw_shine(&window,test_world);
 		control_draw_tool_helpers(window);
-		
+
 		leapfrog_integrator(test_world.object_list);
 
 		window.setView(camera);
