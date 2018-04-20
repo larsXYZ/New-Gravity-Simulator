@@ -16,8 +16,7 @@ static sf::Vector2f tool_vector2f_1(0,0);
 
 //--------------------------------------------------------
 
-void control_reset_working_variables()
-{
+void control_reset_working_variables(){
 	mouse_drag_toggle = false;
 	mouse_drag_start_location = sf::Vector2f(0,0);
 	view_center_start_location = sf::Vector2f(0,0);
@@ -27,8 +26,7 @@ void control_reset_working_variables()
 }
 
 
-void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world)
-{
+void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world){
 
 	//Click -> drag screen
 	control_drag_camera(event,window,camera);
@@ -37,7 +35,7 @@ void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View 
 	switch (event.type)
 	{
 
-		case (sf::Event::Closed): //Ends game	
+		case (sf::Event::Closed): //Ends game
 		{
 			window.close();
 			return;
@@ -45,7 +43,7 @@ void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View 
 
 		case (sf::Event::MouseButtonPressed): //Mousepress
 		{
-			
+
 			if (event.mouseButton.button == sf::Mouse::Left) //Uses current tool
 			{
 				control_use_tool(event,window,camera,world);
@@ -57,7 +55,7 @@ void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View 
 
 		case (sf::Event::KeyPressed): //Keyboard shortcuts
 		{
-		
+
 			if (event.key.code == sf::Keyboard::Escape) //Quit game
 			{
 				window.close();
@@ -75,13 +73,12 @@ void control_event_handler(sf::Event &event, sf::RenderWindow &window, sf::View 
 			break;
 		}
 
-	}	
+	}
 
 
 }
 
-void control_drag_camera(sf::Event &event, sf::RenderWindow &window, sf::View &camera)
-{
+void control_drag_camera(sf::Event &event, sf::RenderWindow &window, sf::View &camera){
 
 	//Registers click and position of view and mouse
 	if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Right && !mouse_drag_toggle)
@@ -102,8 +99,7 @@ void control_drag_camera(sf::Event &event, sf::RenderWindow &window, sf::View &c
 	}
 }
 
-void control_use_tool(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world)
-{
+void control_use_tool(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world){
 
 	if (current_tool == 0) //Adds planet
 	{
@@ -117,8 +113,7 @@ void control_use_tool(sf::Event &event, sf::RenderWindow &window, sf::View &came
 
 }
 
-void control_add_object(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world)
-{
+void control_add_object(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world){
 
 	//Registers first mousepress location
 	if (!tool_toggle)
@@ -131,7 +126,7 @@ void control_add_object(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 	//Creates object on second press
 	if (tool_toggle)
 	{
-		
+
 		sf::Vector2f mouse_delta = window.mapPixelToCoords(sf::Mouse::getPosition(window)) - tool_vector2f_0;
 		mouse_delta.x *= -CONTROL_ADD_PLANET_SPEED_MULTIPLIER;
 		mouse_delta.y *= -CONTROL_ADD_PLANET_SPEED_MULTIPLIER;
@@ -145,8 +140,7 @@ void control_add_object(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 	}
 }
 
-void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world)
-{
+void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &camera, World &world){
 
 	//Registers first mousepress location
 	if (!tool_toggle)
@@ -163,7 +157,7 @@ void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 		std::cout << "SECOND CLICK" << std::endl;
 		tool_vector2f_1 = window.mapPixelToCoords(sf::Mouse::getPosition(window)) - tool_vector2f_0;
 		float rad_max = euc_norm(tool_vector2f_1);
-		
+
 		float delta_angle = 2*PI / 200;
 		int i = 0;
 
@@ -171,9 +165,9 @@ void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 		{
 			std::cout << "CREATING OBJECT " << ++i << std::endl;
 			Object* new_object = new Object(tool_vector2f_0,sf::Vector2f(0,0),0.1);
-		
+
 			float dist = random_float(0,rad_max);
-			new_object->pos = new_object->pos + p2v(dist,angle); 
+			new_object->pos = new_object->pos + p2v(dist,angle);
 
 			new_object->light_emitter = false;
 			new_object->color = sf::Color(150,150,150);
@@ -185,8 +179,7 @@ void control_add_system(sf::Event &event, sf::RenderWindow &window, sf::View &ca
 
 }
 
-void control_draw_tool_helpers(sf::RenderWindow &window)
-{
+void control_draw_tool_helpers(sf::RenderWindow &window){
 
 	if (current_tool == 0 && tool_toggle) //Draws add planet line
 	{
@@ -194,5 +187,3 @@ void control_draw_tool_helpers(sf::RenderWindow &window)
 	}
 
 }
-
-

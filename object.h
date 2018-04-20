@@ -13,9 +13,8 @@
 #include "util_functions.h"
 #include "constants.h"
 
-struct Object
-{
-	
+struct Object{
+
 	//Variables
 	sf::Vector2f pos;
 	sf::Vector2f vel;
@@ -26,14 +25,14 @@ struct Object
 
 	//Graphic Variables
 	sf::Color color;
-	
+
 	//Constructors
 	Object();
 	Object(sf::Vector2f position, sf::Vector2f velocity, float m);
 
 	//Utilities
-	void update_rad(); //Updates radius of object 
-	
+	void update_rad(); //Updates radius of object
+
 
 };
 

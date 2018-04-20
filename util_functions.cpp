@@ -3,8 +3,7 @@
 #include "util_functions.h"
 
 
-int random_int(int lower, int higher)
-{
+int random_int(int lower, int higher){
 
 	std::random_device rd;
     std::mt19937 mt(rd());
@@ -13,8 +12,7 @@ int random_int(int lower, int higher)
 
 }
 
-float random_float(float lower, float higher)
-{
+float random_float(float lower, float higher){
 
 	std::random_device rd;
     std::mt19937 mt(rd());
@@ -23,7 +21,6 @@ float random_float(float lower, float higher)
 
 }
 
-sf::Color random_color(int min, int max)
-{
+sf::Color random_color(int min, int max){
 	return sf::Color(random_int(min,max),random_int(min,max),random_int(min,max));
 }

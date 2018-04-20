@@ -18,8 +18,7 @@ sf::View camera(sf::FloatRect(0 , 0, SCREEN_RESOLUTION_HORIZONTAL, SCREEN_RESOLU
 //World
 World test_world;
 
-int main()
-{
+int main(){
 
 	camera.zoom(2);
 	window.setFramerateLimit(60);
@@ -35,12 +34,10 @@ int main()
 
 
 
-	while (window.isOpen())
-    {
+	while (window.isOpen()){
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-			control_event_handler(event,window,camera,test_world);
+        while (window.pollEvent(event)){
+					control_event_handler(event,window,camera,test_world);
         }
 
 		collision_detection(test_world.object_list);

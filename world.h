@@ -12,8 +12,7 @@
 #include <vector>
 #include "object.h"
 
-struct World
-{
+struct World{
 	//Variables
 	std::vector<Object*> object_list;
 
